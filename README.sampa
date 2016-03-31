@@ -1,0 +1,22 @@
+
+# Building and runnign on the Sampa cluster
+
+```
+# use GCC 4.9.3 and Intel MPI
+module purge
+module load gcc intel-mpi cmake
+
+# use Intel MKL
+source /sampa/share/intel/parallel_studio_xe_2016/mkl/bin/mklvars.sh intel64
+
+# build everything
+make
+
+# run an example
+# the procduct of -r and -c should be the same as nodes * tasks per node.
+# pddrive -r 1 -c <n> gives a 1-D block-cyclic column distribution over all the proceses.
+cd EXAMPLE
+srun --nodes=8 --ntasks-per-node=8 ./pddrive -r 1 -c 64 /shared/LU/G3_circuit.mtx
+
+```
+

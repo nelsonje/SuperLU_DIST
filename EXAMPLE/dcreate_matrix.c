@@ -10,6 +10,7 @@
  * </pre>
  */
 #include <math.h>
+#include <ctype.h>
 #include "superlu_ddefs.h"
 
 /* \brief
@@ -79,6 +80,26 @@ int dcreate_matrix(SuperMatrix *A, int nrhs, double **rhs,
 #endif
 
     if ( !iam ) {
+      // first, try reading as matrix market
+      int is_matrix_market = 1; // assume yes
+      {
+        char line[512];
+        fgets(line,512,fp);
+
+        char * p;
+        for (p=line; *p!='\0'; *p=tolower(*p),p++);
+
+        if( 0 != strncmp(line,"%%matrixmarket", 14) ) {
+          is_matrix_market = 0;
+        }
+
+        // start over from beginning
+        rewind( fp );
+      }
+      
+      if( is_matrix_market ) {
+        dreadMM(fp, &m, &n, &nnz, &nzval, &rowind, &colptr);
+      } else {
 #if 1
         /* Read the matrix stored on disk in Harwell-Boeing format. */
         dreadhb_dist(iam, fp, &m, &n, &nnz, &nzval, &rowind, &colptr);
@@ -87,6 +108,7 @@ int dcreate_matrix(SuperMatrix *A, int nrhs, double **rhs,
 	printf(".. reading triplet file\n");
         dreadtriple(fp, &m, &n, &nnz, &nzval, &rowind, &colptr);
 #endif
+      }
 
 	/* Broadcast matrix A to the other PEs. */
 	MPI_Bcast( &m,     1,   mpi_int_t,  0, grid->comm );
