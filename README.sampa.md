@@ -28,7 +28,7 @@ Data distribution is controlled with the ```-r``` and ```-c```
 flags. The product of ```-r``` and ```-c``` should be the equal to (or
 maybe less than, although I'm not sure why it would be) as number of
 nodes * tasks per node. To get a 1D distribution of columns over
-processes, set ```-r``` to ` and ```-c``` to the number of processes.
+processes, set ```-r``` to 1 and ```-c``` to the number of processes.
 
 Here are some example job configurations.
 
